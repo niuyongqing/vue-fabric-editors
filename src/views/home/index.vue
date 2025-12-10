@@ -32,7 +32,7 @@
 import Top from './components/top/index.vue';
 import Left from './components/left/index.vue';
 import Right from './components/right/index.vue';
-
+import { nextTick } from 'vue';
 import zoom from '@/components/zoom.vue';
 import dragMode from '@/components/dragMode.vue';
 // 功能组件
@@ -88,60 +88,62 @@ const state = reactive({
 
 onMounted(() => {
   // 初始化fabric
-  const canvas = new fabric.Canvas('canvas', {
-    fireRightClick: true, // 启用右键，button的数字为3
-    stopContextMenu: true, // 禁止默认右键菜单
-    controlsAboveOverlay: true, // 超出clipPath后仍然展示控制条
-    // imageSmoothingEnabled: false, // 解决文字导出后不清晰问题
-    preserveObjectStacking: true, // 当选择画布中的对象时，让对象不在顶层。
+  nextTick(() => {
+    const canvas = new fabric.Canvas('canvas', {
+      fireRightClick: true, // 启用右键，button的数字为3
+      stopContextMenu: true, // 禁止默认右键菜单
+      controlsAboveOverlay: true, // 超出clipPath后仍然展示控制条
+      // imageSmoothingEnabled: false, // 解决文字导出后不清晰问题
+      preserveObjectStacking: true, // 当选择画布中的对象时，让对象不在顶层。
+    });
+
+    // 初始化编辑器
+    canvasEditor.init(canvas);
+    canvasEditor
+      .use(DringPlugin)
+      .use(PolygonModifyPlugin)
+      .use(AlignGuidLinePlugin)
+      .use(ControlsPlugin)
+      // .use(ControlsRotatePlugin)
+      .use(CenterAlignPlugin)
+      .use(LayerPlugin)
+      .use(CopyPlugin)
+      .use(MoveHotKeyPlugin)
+      .use(DeleteHotKeyPlugin)
+      .use(GroupPlugin)
+      .use(DrawLinePlugin)
+      .use(GroupTextEditorPlugin)
+      .use(GroupAlignPlugin)
+      .use(WorkspacePlugin)
+      .use(HistoryPlugin)
+      .use(FlipPlugin)
+      .use(RulerPlugin)
+      .use(DrawPolygonPlugin)
+      .use(FreeDrawPlugin)
+      .use(PathTextPlugin)
+      .use(SimpleClipImagePlugin)
+      .use(BarCodePlugin)
+      .use(QrCodePlugin)
+      .use(FontPlugin, {
+        repoSrc: APIHOST,
+      })
+      .use(MaterialPlugin, {
+        repoSrc: APIHOST,
+      })
+      .use(WaterMarkPlugin)
+      .use(PsdPlugin)
+      .use(ImageStroke)
+      .use(ResizePlugin)
+      .use(LockPlugin)
+      .use(AddBaseTypePlugin)
+      .use(MaskPlugin);
+
+    state.show = true;
+    // 默认打开标尺
+    if (state.ruler) {
+      canvasEditor.rulerEnable();
+    }
   });
-
-  // 初始化编辑器
-  canvasEditor.init(canvas);
-  canvasEditor
-    .use(DringPlugin)
-    .use(PolygonModifyPlugin)
-    .use(AlignGuidLinePlugin)
-    .use(ControlsPlugin)
-    // .use(ControlsRotatePlugin)
-    .use(CenterAlignPlugin)
-    .use(LayerPlugin)
-    .use(CopyPlugin)
-    .use(MoveHotKeyPlugin)
-    .use(DeleteHotKeyPlugin)
-    .use(GroupPlugin)
-    .use(DrawLinePlugin)
-    .use(GroupTextEditorPlugin)
-    .use(GroupAlignPlugin)
-    .use(WorkspacePlugin)
-    .use(HistoryPlugin)
-    .use(FlipPlugin)
-    .use(RulerPlugin)
-    .use(DrawPolygonPlugin)
-    .use(FreeDrawPlugin)
-    .use(PathTextPlugin)
-    .use(SimpleClipImagePlugin)
-    .use(BarCodePlugin)
-    .use(QrCodePlugin)
-    .use(FontPlugin, {
-      repoSrc: APIHOST,
-    })
-    .use(MaterialPlugin, {
-      repoSrc: APIHOST,
-    })
-    .use(WaterMarkPlugin)
-    .use(PsdPlugin)
-    .use(ImageStroke)
-    .use(ResizePlugin)
-    .use(LockPlugin)
-    .use(AddBaseTypePlugin)
-    .use(MaskPlugin);
-
-  state.show = true;
-  // 默认打开标尺
-  if (state.ruler) {
-    canvasEditor.rulerEnable();
-  }
 });
 
 onUnmounted(() => canvasEditor.destory());
